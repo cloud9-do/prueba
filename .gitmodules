@@ -1,0 +1,4 @@
+[submodule "HectorJunior/repo1/post_legal_tip"]
+	path = HectorJunior/repo1/post_legal_tip
+	url = git@github.com:HectorJunior/repo1.git
+	branch = master

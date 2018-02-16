@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data noupdate="1">
+        <record id="pos_shop_promo_1" model="pos.shop.promotion">
+            <field name="name">Christmas Offer</field>
+            <field name="description">Flat 10% Off On shopping above 1000/-</field>
+        </record>
+        <record id="pos_shop_1" model="pos.shop">
+            <field name="name">Fruit Shop</field>
+            <field name="product_ids" eval="[(6,0,[ref('point_of_sale.boni_orange'),
+            ref('point_of_sale.papillon_orange'),
+            ref('point_of_sale.citron'),
+            ref('point_of_sale.limon'),
+            ref('point_of_sale.pamplemousse_rouge_pamplemousse'),
+            ref('point_of_sale.pomme_granny_smith'),
+            ref('point_of_sale.pomme_jonagold'),
+            ref('point_of_sale.pomme_golden_perlim'),
+            ref('point_of_sale.poire_conference'),
+            ref('point_of_sale.peche'),
+            ref('point_of_sale.raisins_noir')])]"/>
+            <field name="promotion_ids" eval="[(6,0,[ref('pos_shop_promo_1')])]"/>
+        </record>
+        <record model="pos.config" id="point_of_sale.pos_config_main">
+            <field name="shop_ref_id" ref="pos_shop_1"/>
+        </record>>
+    </data>
+</odoo>

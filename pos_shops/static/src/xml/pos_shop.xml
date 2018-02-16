@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+	<t t-extend="PosTicket" >
+		<t t-jquery=".pos-center-align" t-operation="after">
+
+			<br/>
+			<t t-if="receipt.shopdata">
+				<t t-esc="receipt.shopdata.name"/><br />
+				<t t-if="receipt.shopdata.email != ''">
+					Email: <t t-esc="receipt.shopdata.email || ''"/><br />
+				</t>
+				<t t-if="receipt.shopdata.website != ''">
+					Website: <t t-esc="receipt.shopdata.website || ''"/><br />
+				</t>
+			</t>
+		</t>
+		<t t-jquery=".receipt-change" t-operation="after">
+			<t t-if="receipt.shopdata">
+				<div>
+					<t t-if="receipt.shopdata.shop_promotions.length > 0">
+						<br/><hr/>
+					</t>
+					<t t-foreach="receipt.shopdata.shop_promotions" t-as="promotion">
+						<div>
+							<t t-esc="promotion.description"/>
+						</div>
+					</t>
+				</div>
+			</t>
+		</t>
+	</t>
+	<t t-name="WkXmlReceipt">
+		<receipt align='center' width='40' value-thousands-separator='' >
+			<t t-if="receipt.shopdata.logo_image">
+				<img t-att-src="receipt.shopdata.shop_logo"/>
+			</t>
+			<t t-if='!receipt.shopdata.logo_image'>
+				<h1><t t-esc='receipt.shopdata.name' /></h1>
+				<br/>
+			</t>
+			<br/>
+			<div font='b'>
+				<t t-if='receipt.shopdata.name'>
+					<div><t t-esc='receipt.shopdata.name' /></div>
+				</t>
+				<t t-if="receipt.shopdata.street != ''">
+					<div><t t-esc="receipt.shopdata.street"/></div>
+				</t>
+				<t t-if="receipt.shopdata.street2 != ''">
+					<div><t t-esc="receipt.shopdata.street2"/></div>
+				</t>
+				<t t-if="receipt.shopdata.city != '' or  receipt.shopdata.state_id or  receipt.shopdata.zip_code != '' ">
+					<div>
+						<t t-if="receipt.shopdata.city != ''">
+							<t t-esc="receipt.shopdata.city"/>
+						</t>
+						<t t-if="receipt.shopdata.state_id">
+							<t t-esc="receipt.shopdata.state_id[1]"/>
+						</t>
+						<t t-if="receipt.shopdata.zip_code != ''">
+							<t t-esc="receipt.shopdata.zip_code"/>
+						</t>
+					</div>
+				</t>
+				<t t-if="receipt.shopdata.country_id">
+					<div><t t-esc="receipt.shopdata.country_id[1]"/></div>
+				</t>
+				<t t-if='receipt.shopdata.email'>
+					<div><t t-esc='receipt.shopdata.email' /></div>
+				</t>
+				<t t-if='receipt.shopdata.website'>
+					<div><t t-esc='receipt.shopdata.website' /></div>
+				</t>
+				<t t-if='receipt.shopdata.phone'>
+				   <div><t t-esc='receipt.shopdata.phone' /></div>
+				</t>
+				<t t-if='receipt.header_xml'>
+					<t t-raw='receipt.header_xml' />
+				</t>
+				<t t-if='!receipt.header_xml and receipt.header'>
+					<div><t t-esc='receipt.header' /></div>
+				</t>
+				<t t-if='receipt.cashier'>
+					<div class='cashier'>
+						<div>--------------------------------</div>
+						<div>Served by <t t-esc='receipt.cashier' /></div>
+					</div>
+				</t>
+			</div>
+			<br /><br />
+
+			<!-- Orderlines -->
+
+			<div class='orderlines' line-ratio='0.6'>
+				<t t-foreach='receipt.orderlines' t-as='line'>
+					<t t-set='simple' t-value='line.discount === 0 and line.unit_name === "Unit(s)" and line.quantity === 1' />
+					<t t-if='simple'>
+						<line>
+							<left><t t-esc='line.product_name_wrapped[0]' /></left>
+							<right><value><t t-esc='line.price_display' /></value></right>
+						</line>
+						<t t-call="XmlReceiptWrappedProductNameLines"/>
+					</t>
+					<t t-if='!simple'>
+						<line><left><t t-esc='line.product_name_wrapped[0]' /></left></line>
+						<t t-call="XmlReceiptWrappedProductNameLines"/>
+						<t t-if='line.discount !== 0'>
+							<line indent='1'><left>Discount: <t t-esc='line.discount' />%</left></line>
+						</t>
+						<line indent='1'>
+							<left>
+								<value value-decimals='3' value-autoint='on'>
+									<t t-esc='line.quantity' />
+								</value>
+								<t t-if='line.unit_name !== "Unit(s)"'>
+									<t t-esc='line.unit_name' />
+								</t>
+								x
+								<value value-decimals='2'>
+									<t t-esc='line.price' />
+								</value>
+							</left>
+							<right>
+								<value><t t-esc='line.price_display' /></value>
+							</right>
+						</line>
+					</t>
+				</t>
+			</div>
+
+			<!-- Subtotal -->
+
+			<t t-set='taxincluded' t-value='Math.abs(receipt.subtotal - receipt.total_with_tax) &lt;= 0.000001' />
+			<t t-if='!taxincluded'>
+				<line><right>--------</right></line>
+				<line><left>Subtotal</left><right> <value><t t-esc="receipt.subtotal" /></value></right></line>
+				<t t-foreach='receipt.tax_details' t-as='tax'>
+					<line>
+						<left><t t-esc='tax.name' /></left>
+						<right><value><t t-esc='tax.amount' /></value></right>
+					</line>
+				</t>
+			</t>
+
+			<!-- Total -->
+
+			<line><right>--------</right></line>
+			<line class='total' size='double-height'>
+				<left><pre>	TOTAL</pre></left>
+				<right><value><t t-esc='receipt.total_with_tax' /></value></right>
+			</line>
+			<br/><br/>
+
+			<!-- Payment Lines -->
+
+			<t t-foreach='paymentlines' t-as='line'>
+				<line>
+					<left><t t-esc='line.name' /></left>
+					<right><value><t t-esc='line.get_amount()'/></value></right>
+				</line>
+			</t>
+			<br/>
+
+			<line size='double-height'>
+				<left><pre>	CHANGE</pre></left>
+				<right><value><t t-esc='receipt.change' /></value></right>
+			</line>
+			<br/>
+
+			<!-- Extra Payment Info -->
+
+			<t t-if='receipt.total_discount'>
+				<line>
+					<left>Discounts</left>
+					<right><value><t t-esc='receipt.total_discount'/></value></right>
+				</line>
+			</t>
+			<t t-if='taxincluded'>
+				<t t-foreach='receipt.tax_details' t-as='tax'>
+					<line>
+						<left><t t-esc='tax.name' /></left>
+						<right><value><t t-esc='tax.amount' /></value></right>
+					</line>
+				</t>
+				<line>
+					<left>Total Taxes</left>
+					<right><value><t t-esc='receipt.total_tax'/></value></right>
+				</line>
+			</t>
+
+			<div class='before-footer' />
+
+			<!-- Footer -->
+			<t t-if='receipt.footer_xml'>
+				<t t-raw='receipt.footer_xml' />
+			</t>
+
+			<t t-if='!receipt.footer_xml and receipt.footer'>
+				<br/>
+				<t t-esc='receipt.footer' />
+				<br/>
+				<br/>
+			</t>
+
+			<div class='after-footer' />
+
+			<br/>
+			<div font='b'>
+				<div><t t-esc='receipt.name' /></div>
+				<div><t t-esc='receipt.date.localestring' /></div>
+			</div>
+			<div>
+				<t t-if="receipt.shopdata.shop_promotions.length > 0">
+					<br/><hr/><br/>
+				</t>
+				<t t-foreach="receipt.shopdata.shop_promotions" t-as="promotion">
+					<div  align="left">
+						<t t-esc="promotion.description"/>
+					</div><br/>
+				</t>
+			</div>
+		</receipt>
+	</t>
+</templates>

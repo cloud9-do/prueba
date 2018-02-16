@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<data>
+		<record id="pos_shop_inherit_pos_config" model="ir.ui.view">
+			<field name="name">pos.config.product.form</field>
+			<field name="model">pos.config</field>
+			<field name="inherit_id" ref="point_of_sale.view_pos_config_form"/>
+			<field name="arch" type="xml">
+				<xpath expr="//field[@name='active']" position="after">
+					<field name="shop_ref_id" id="shop_ref_id"/>
+				</xpath>
+			</field>
+		</record>
+		<record id="wk_pos_shop_inherit_pos_template" model="ir.ui.view">
+			<field name="name">product.template.form.inherit</field>
+			<field name="model">product.template</field>
+			<field name="inherit_id" ref="point_of_sale.product_template_form_view"/>
+			<field name="arch" type="xml">
+				<xpath expr="//field[@name='available_in_pos']" position="after">
+					<field name="available_in_shops" attrs="{'invisible':[('available_in_pos','=',False)]}"/>
+					<label for='shop_ids' string=" " attrs="{'invisible':[('available_in_pos','=',False)]}"/>
+					<div>
+						<field name="shop_ids" widget="many2many_tags" attrs="{'invisible':[('available_in_pos','=',False)]}"/>
+					</div>
+				</xpath>
+			</field>
+		</record>
+		<record id="pos_shop_promotion_form_view" model="ir.ui.view">
+			<field name="name">pos.shop.promotion</field>
+			<field name="model">pos.shop.promotion</field>
+			<field name="type">form</field>
+			<field name="arch" type="xml">
+				<form string="form session">
+					<sheet>
+						<group string="Add Promotion Here">
+						</group>
+						<group>
+							<div>
+								<field name="name" placeholder="Title"/>
+							</div>
+						</group>
+						<group>
+							<div>
+								<field name="description" placeholder="This promotion will be shown on the POS receipt (Xml receipt) "/>
+							</div>
+						</group>
+					</sheet>
+				</form>
+			</field>
+		</record>
+		<record id="pos_shop_promo_tree_view" model="ir.ui.view">
+			<field name="name">pos.shop.promotion</field>
+			<field name="model">pos.shop.promotion</field>
+			<field name="type">tree</field>
+			<field name="arch" type="xml">
+				<tree string="tree session">
+					<field name="name"/>
+					<field name="description"/>
+				</tree>
+			</field>
+		</record>
+		<record id="pos_shop_promotion_form_view_action" model="ir.actions.act_window">
+			<field name="name">Pos Shop Promotion</field>
+			<field name="res_model">pos.shop.promotion</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">tree,form</field>
+		</record>
+		<record id="pos_shop_form_view" model="ir.ui.view">
+			<field name="name">pos.shop</field>
+			<field name="model">pos.shop</field>
+			<field name="type">form</field>
+			<field name='arch' type="xml">
+				<form string="Pos Shop">
+					<sheet>
+						<field name="image" widget='image' class="oe_avatar"/>
+						<div class="oe_title">
+							<h1><field name="name" default_focus="1" placeholder="Name" style="width: 50%; margin-top:12px;"/></h1>
+						</div>
+					   	<group col='2'>
+							<field name="pos_config_id"/>
+							<field name="location_id"/>
+						</group>
+						<group>
+							<field name="related_picking_type_id" />
+						</group>
+						<notebook id="patient_registaration_notebook">
+							<page string="General Information">
+								<group>
+									<group>
+										<field name="related_partner_id"/>
+										<label for="street" string="Address"/>
+										<div class="o_address_format">
+											<field name="street" placeholder="Street..." class="o_address_street"/>
+											<field name="street2" placeholder="Street 2..." class="o_address_street"/>
+											<field name="city" placeholder="City" class="o_address_city"/>
+											<field name="state_id" class="o_address_state" placeholder="State" options='{"no_open": True}' />
+											<field name="zip_code" placeholder="ZIP" class="o_address_zip"/>
+											<field name="country_id" placeholder="Country" class="o_address_country" options='{"no_open": True}' />
+										</div>
+									</group>
+									<group>
+										<field name="website" widget="url" placeholder="e.g. www.odoo.com"/>
+										<field name="phone"/>
+										<field name="fax"/>
+										<field name="email"/>
+									</group>
+								</group>
+								<group>
+									<label for="area"/>
+									<div>
+										<field name="area" class="oe_inline"/>Sq./ft.
+									</div>
+								</group>
+							</page>
+							<page string="Products">
+								<field name="product_ids" >
+									<tree string="tree seesion">
+										<field name="name"/>
+										<field name="lst_price"/>
+										<field name="volume"/>
+										<field name="weight"/>
+										<field name="categ_id"/>
+										<field name="type"/>
+									</tree>
+								</field>
+							</page>
+							<page string="Promotions">
+								<field name="promotion_ids">
+									<tree string="tree session">
+										<field name="name"/>
+										<field name="description"/>
+									</tree>
+								</field>
+							</page>
+						</notebook>
+					</sheet>
+				</form>
+			</field>
+		</record>
+		<record id="pos_shop_tree_view" model="ir.ui.view">
+			<field name="name">pos.shop</field>
+			<field name="model">pos.shop</field>
+			<field name="type">tree</field>
+			<field name="arch" type="xml">
+				<tree string="tree session">
+					<field name="name"/>
+					<field name="pos_config_id"/>
+					<field name="location_id"/>
+					<field name="related_picking_type_id"/>
+				</tree>
+			</field>
+		</record>
+		<record id="pos_shop_form_view_action" model="ir.actions.act_window">
+			<field name="name">Pos Shop</field>
+			<field name="res_model">pos.shop</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">tree,form</field>
+		</record>
+		<menuitem id="wk_pos_shop_menu" name="Pos Shop" parent="point_of_sale.menu_point_config_product" action="pos_shop_form_view_action"/>
+		<menuitem id="wk_pos_shop_promo_menu" name="Pos Shop Promotion" parent="point_of_sale.menu_point_config_product" action="pos_shop_promotion_form_view_action"/>		
+	</data>
+</odoo>
